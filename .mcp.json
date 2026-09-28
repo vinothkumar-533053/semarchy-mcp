@@ -1,0 +1,19 @@
+{
+    "mcpServers": {
+        "Semarchy DM": {
+            "command": "C:/Users/VinothkumarChittibab/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/Scripts/uv.exe",
+            "args": [
+                "--directory",
+                "C:/MyProjects/semarchy-mcp",
+                "run",
+                "mcp-server.py"
+            ],
+            "env": {
+                "XDM_BASE_URL": "http://localhost:8088/semarchy",
+                "XDM_USERNAME": "semadmin",
+                "XDM_PASSWORD": "semadmin",
+                "XDM_API_KEY": "PwJZe1v.kXGjgDLtMt60xkiT7ELs9x_0ezUbHnFgZGl"
+            }
+        }
+    }
+}

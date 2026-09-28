@@ -1,0 +1,2371 @@
+openapi: "3.0.0"
+servers:
+- url: "http://localhost:8088/semarchy/api/rest"
+info:
+  version: ""
+  title: "Model and Application Management"
+  description: "This API allows to manage models as well as their deployments to data\
+    \ locations."
+security:
+- basicAuth: []
+  apiKeyAuth: []
+tags:
+- name: "Execution Engine"
+  description: "Retrieve the status of the execution engine, start and stop the execution\
+    \ engine."
+- name: "Models"
+  description: "Create, export/import and manage model editions and translations. "
+- name: "Data Locations"
+  description: "Create, delete, upgrade data locations. Deploy model editions to existing\
+    \ data locations."
+- name: "Notification Policies"
+  description: "List, create and configure notification policies for the data location."
+- name: "Continuous Loads"
+  description: "List, create and configure continuous loads for the data location.\n"
+- name: "Purge Schedule"
+  description: "Configure the purge schedule for the data location."
+- name: "Data Notifications"
+  description: "List, configure, delete and manage data notifications."
+paths:
+  /app-builder/execution-engine:
+    get:
+      operationId: "getExecutionEngine"
+      summary: "Get Status"
+      tags:
+      - "Execution Engine"
+      description: "Returns the status of the execution engine (Note: only available\
+        \ for active nodes)."
+      responses:
+        "200":
+          $ref: "#/components/responses/ExecutionEngineMetadata"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/execution-engine/start:
+    post:
+      operationId: "startExecutionEngine"
+      summary: "Start"
+      tags:
+      - "Execution Engine"
+      description: "Starts the execution engine and the batch poller (Note: only available\
+        \ for active nodes)."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/execution-engine/stop:
+    post:
+      operationId: "stopExecutionEngine"
+      summary: "Stop"
+      tags:
+      - "Execution Engine"
+      description: "Stops the execution engine and the batch poller (Note: only available\
+        \ for active nodes)."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/model-imports:
+    post:
+      operationId: "importModelEditionToDeployment"
+      summary: "Import model edition"
+      tags:
+      - "Models"
+      description: "Imports the request file as a new model edition. \n\nWhen importing\
+        \ a model edition, the model and the branch containing this model edition\
+        \ are automatically created as needed. \n\nThis operation corresponds to the\
+        \ *Import* action. It preserves the IDs of all model objects. It is intended\
+        \ to import to a _deployment_ repository a _closed_ model edition.\n\nTo create\
+        \ a new model from a model export in a _design_ repository, use the _Create\
+        \ model_ operation to create a blank model and then use the _Import-Replace\
+        \ model edition_ operation to replace this blank model by the content of the\
+        \ model export file.\n\nWhen the operation completes successfully, the response\
+        \ is a redirection (HTTP 303: See Other) to the newly created model edition\
+        \ information."
+      requestBody:
+        $ref: "#/components/requestBodies/ModelEdition"
+      responses:
+        "303":
+          $ref: "#/components/responses/Redirection303"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models:
+    get:
+      operationId: "getModels"
+      summary: "List models"
+      tags:
+      - "Models"
+      description: "Returns a list of the models available in the repository."
+      responses:
+        "200":
+          $ref: "#/components/responses/ModelMetadataList"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    post:
+      operationId: "createModel"
+      summary: "Create model"
+      tags:
+      - "Models"
+      description: "Create a new model and a model edition with version number 0.0."
+      requestBody:
+        $ref: "#/components/requestBodies/ModelCreate"
+      responses:
+        "201":
+          $ref: "#/components/responses/Success201"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "409":
+          $ref: "#/components/responses/ClientError409"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models/{name}:
+    parameters:
+    - $ref: "#/components/parameters/model-name"
+    get:
+      operationId: "getModel"
+      summary: "Get model information"
+      tags:
+      - "Models"
+      description: "Returns the details of the model whose name is given in the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/ModelMetadata"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    delete:
+      operationId: "deleteModel"
+      summary: "Delete model"
+      tags:
+      - "Models"
+      description: "Deletes the model whose name is given in the path. This operation\
+        \ deletes the model and all its editions, and cannot be undone."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models/{name}/editions:
+    parameters:
+    - $ref: "#/components/parameters/model-name"
+    get:
+      operationId: "getModelEditions"
+      summary: "List model editions"
+      tags:
+      - "Models"
+      description: "Returns a list of the model editions for the model whose name\
+        \ is given in the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/ModelEditionMetadataList"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models/{name}/editions/{key}:
+    parameters:
+    - $ref: "#/components/parameters/model-name"
+    - $ref: "#/components/parameters/edition-key"
+    get:
+      operationId: "getModelEdition"
+      summary: "Get model edition information"
+      tags:
+      - "Models"
+      description: "Returns the details of a model edition whose name and key are\
+        \ given in the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/ModelEditionMetadata"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    delete:
+      operationId: "deleteModelEdition"
+      summary: "Delete model edition"
+      tags:
+      - "Models"
+      description: "Deletes a model edition along with all the related objects (logical\
+        \ model, deployment history, ...). Only the model editions that are closed,\
+        \ are not deployed in any data location and are not the parent model edition\
+        \ of any branch can be deleted. "
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "409":
+          $ref: "#/components/responses/ClientError409"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models/{name}/editions/{key}/close:
+    parameters:
+    - $ref: "#/components/parameters/model-name"
+    - $ref: "#/components/parameters/edition-key"
+    post:
+      operationId: "closeModelEdition"
+      summary: "Close model edition"
+      tags:
+      - "Models"
+      description: "Closes a model edition whose name and key are given in the path,\
+        \ and then opens a new edition of the model.\n\nWhen the operation completes\
+        \ successfully, the response is a redirection (HTTP 303: See Other) to the\
+        \ newly opened model edition information."
+      requestBody:
+        $ref: "#/components/requestBodies/ModelEditionClose"
+      responses:
+        "303":
+          $ref: "#/components/responses/Redirection303"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models/{name}/editions/{key}/branch:
+    parameters:
+    - $ref: "#/components/parameters/model-name"
+    - $ref: "#/components/parameters/edition-key"
+    post:
+      operationId: "branchModelEdition"
+      summary: "Create new branch"
+      tags:
+      - "Models"
+      description: "Creates a new branch and a first model edition in this branch,\
+        \ based on the model whose name and key are given in the path.\n\n\nWhen the\
+        \ operation completes successfully, the response is a redirection (HTTP 303:\
+        \ See Other) to the newly opened model edition information."
+      requestBody:
+        $ref: "#/components/requestBodies/BranchCreate"
+      responses:
+        "303":
+          $ref: "#/components/responses/Redirection303"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models/{name}/editions/{key}/content:
+    parameters:
+    - $ref: "#/components/parameters/model-name"
+    - $ref: "#/components/parameters/edition-key"
+    get:
+      operationId: "exportModelEdition"
+      summary: "Export model edition"
+      tags:
+      - "Models"
+      description: "Exports a model edition whose name and key are given in the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/ModelEdition"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    post:
+      operationId: "importModelEdition"
+      summary: "Import-Replace model edition"
+      tags:
+      - "Models"
+      description: "Imports the request file to replace the model edition whose name\
+        \ and key are given in the path.\n\nThis operation corresponds to the *Import\
+        \ Replace* action."
+      requestBody:
+        $ref: "#/components/requestBodies/ModelEdition"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/models/{name}/editions/{key}/translations:
+    parameters:
+    - $ref: "#/components/parameters/model-name"
+    - $ref: "#/components/parameters/edition-key"
+    get:
+      operationId: "exportModelEditionTranslations"
+      summary: "Export translations"
+      tags:
+      - "Models"
+      description: "Exports the translations for a model edition whose name and key\
+        \ are given in the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/ModelEditionTranslations"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    post:
+      operationId: "importModelEditionTranslations"
+      summary: "Import translations"
+      tags:
+      - "Models"
+      description: "Imports the request file as the translations for the model edition\
+        \ whose name and key are given in the path."
+      requestBody:
+        $ref: "#/components/requestBodies/ModelEditionTranslations"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations:
+    get:
+      operationId: "getDataLocations"
+      summary: "List data locations"
+      tags:
+      - "Data Locations"
+      description: "Returns a list of the data locations available in the repository."
+      responses:
+        "200":
+          $ref: "#/components/responses/DataLocationMetadataList"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    post:
+      operationId: "createDataLocation"
+      summary: "Create data location"
+      tags:
+      - "Data Locations"
+      description: "Creates a new data location and deploys the model edition whose\
+        \ model name and key is provided in the request (Note: only available for\
+        \ active nodes)."
+      requestBody:
+        $ref: "#/components/requestBodies/DataLocationCreate"
+      responses:
+        "201":
+          $ref: "#/components/responses/Success201"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    get:
+      operationId: "getDataLocation"
+      summary: "Get data location information"
+      tags:
+      - "Data Locations"
+      description: "Returns the details of the data location whose name is given in\
+        \ the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/DataLocationMetadata"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/delete:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    post:
+      operationId: "deleteDataLocation"
+      summary: "Delete data location"
+      tags:
+      - "Data Locations"
+      description: "Deletes the data location whose name is given in the path, optionally\
+        \ deleting the contents of the data location schema (Note: only available\
+        \ for active nodes).\n\nThis operation cannot be undone.\n\n**Deleting the\
+        \ contents of the data location schema deletes all the data stored in this\
+        \ schema.**"
+      requestBody:
+        $ref: "#/components/requestBodies/DataLocationDelete"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/upgrade:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    post:
+      operationId: "upgradeDataLocation"
+      summary: "Upgrade data location"
+      tags:
+      - "Data Locations"
+      description: "Upgrades the data location whose name is given in the path (Note:\
+        \ only available for active nodes).\n\nWhen the operation completes successfully,\
+        \ the response is a redirection (HTTP 303: See Other) to the data location\
+        \ information."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/deploy:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    post:
+      operationId: "deployModelEdition"
+      summary: "Deploy model edition"
+      tags:
+      - "Data Locations"
+      description: "Deploys a model edition to the data location whose name and key\
+        \ are given in the path (Note: only available for active nodes).\n\nThe name\
+        \ and key of the model to deploy are provided in the request.\n\nWhen the\
+        \ operation completes successfully, the status of the response is HTTP 204.\n\
+        \nIf the datalocation is in **INSTALL_JOB_FAILED** status, the request restarts\
+        \ the installation job."
+      requestBody:
+        $ref: "#/components/requestBodies/DataLocationDeploy"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/set-status:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    post:
+      operationId: "setDataLocationStatus"
+      summary: "Set Status"
+      tags:
+      - "Data Locations"
+      description: "Changes the status of the data location whose name and key are\
+        \ given in the path (Note: only available for active nodes)."
+      requestBody:
+        $ref: "#/components/requestBodies/DataLocationChangeStatus"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/purge-jobs:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    post:
+      operationId: "purgeJobs"
+      summary: "Purge jobs"
+      tags:
+      - "Data Locations"
+      description: "Purges the job logs for the data location whose name is given\
+        \ in the path, according to the filter defined in the request payload.\n\n\
+        The request contains a list of criteria that should all be valid for a job\
+        \ to be considered for the purge. Each criteria filters the purged jobs according\
+        \ to one property of the jobs. A missing attribute means “all possible values”"
+      requestBody:
+        $ref: "#/components/requestBodies/PurgeJobs"
+      responses:
+        "200":
+          $ref: "#/components/responses/PurgeJobsResult"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/purge-deployment-history:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    post:
+      operationId: "purgeDeploymentHistory"
+      summary: "Purge deployment history"
+      tags:
+      - "Data Locations"
+      description: "Purges the deployment history for the data location whose name\
+        \ is given in the path, according to the filter defined in the request payload.\n\
+        \nThe request contains a list of optional criteria that should all be valid\
+        \ for a deployment history record to be considered for the purge."
+      requestBody:
+        $ref: "#/components/requestBodies/PurgeDeploymentHistory"
+      responses:
+        "200":
+          $ref: "#/components/responses/PurgeDeploymentHistoryResult"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/notification-policies:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    get:
+      operationId: "getNotificationPolicies"
+      summary: "Get notification policies"
+      tags:
+      - "Notification Policies"
+      description: "Returns a list of the notification policies with their configuration.\n\
+        \nYou can use this response as a request to replace all notification policies."
+      responses:
+        "200":
+          $ref: "#/components/responses/NotificationPolicyMetadataList"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    put:
+      operationId: "setNotificationPolicies"
+      summary: "Replace notification policies"
+      tags:
+      - "Notification Policies"
+      description: "Deletes all existing notification policies and creates the notification\
+        \ policies provided in the request."
+      requestBody:
+        $ref: "#/components/requestBodies/NotificationPolicyMetadataList"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/notification-policies/{name}:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    - $ref: "#/components/parameters/notification-policy-name"
+    get:
+      operationId: "getNotificationPolicy"
+      summary: "Get notification policy"
+      tags:
+      - "Notification Policies"
+      description: "Returns the configuration of the notification policy whose name\
+        \ is given in the path.\n\nYou can use this response as a request to set a\
+        \ notification policy."
+      responses:
+        "200":
+          $ref: "#/components/responses/NotificationPolicyMetadata"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    put:
+      operationId: "putNotificationPolicy"
+      summary: "Set notification policy"
+      tags:
+      - "Notification Policies"
+      description: "Create a new notification policy or update an existing notification\
+        \ policy. The policy name is given in the path.\n\nNote that this operation\
+        \ updates all configuration properties. A missing property is set to null\
+        \ in the target notification policy."
+      requestBody:
+        $ref: "#/components/requestBodies/NotificationPolicyMetadata"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    delete:
+      operationId: "deleteNotificationPolicy"
+      summary: "Delete notification policy"
+      tags:
+      - "Notification Policies"
+      description: "Deletes the notification policy whose name is given in the path."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/continuous-loads:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    get:
+      operationId: "getContinuousLoads"
+      summary: "Get continuous loads"
+      tags:
+      - "Continuous Loads"
+      description: "Returns a list of the continuous loads with their configuration.\n\
+        \nYou can use this response as a request to replace all continuous loads."
+      responses:
+        "200":
+          $ref: "#/components/responses/ContinuousLoadOutMetadataList"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    put:
+      operationId: "setContinuousLoads"
+      summary: "Replace continuous loads"
+      tags:
+      - "Continuous Loads"
+      description: "Deletes all existing continuous loads and creates the continuous\
+        \ loads provided in the request.\n\n**Replacing all continuous loads deletes\
+        \ and recreates all loads. As a consequence, loads with the same name will\
+        \ have new Load IDs.**"
+      requestBody:
+        $ref: "#/components/requestBodies/ContinuousLoadInMetadataList"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/continuous-loads/{name}:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    - $ref: "#/components/parameters/continuous-load-name"
+    get:
+      operationId: "getContinuousLoad"
+      summary: "Get continuous load"
+      tags:
+      - "Continuous Loads"
+      description: "Returns the configuration of the continuous load whose name is\
+        \ given in the path.\n\nYou can use this response as a request to set a continuous\
+        \ load."
+      responses:
+        "200":
+          $ref: "#/components/responses/ContinuousLoadOutMetadata"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    put:
+      operationId: "putContinuousLoad"
+      summary: "Set continuous load"
+      tags:
+      - "Continuous Loads"
+      description: "Create a new continuous load or update an existing continuous\
+        \ load. The load name is given in the path.\n\nNote that this operation updates\
+        \ all configuration properties. A missing property is set to null in the target\
+        \ continuous load."
+      requestBody:
+        $ref: "#/components/requestBodies/ContinuousLoadInMetadata"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    delete:
+      operationId: "deleteContinuousLoad"
+      summary: "Delete continuous load"
+      tags:
+      - "Continuous Loads"
+      description: "Deletes the continuous load whose name is given in the path."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/purge-schedule:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    get:
+      operationId: "getPurgeSchedule"
+      summary: "Get purge schedule"
+      tags:
+      - "Purge Schedule"
+      description: "Returns the purge schedule configuration for the data location\
+        \ whose name is given in the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/PurgeScheduleMetadata"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    put:
+      operationId: "putPurgeSchedule"
+      summary: "Set purge schedule"
+      tags:
+      - "Purge Schedule"
+      description: "Configures the purge schedule for the data location whose name\
+        \ is given in the path."
+      requestBody:
+        $ref: "#/components/requestBodies/PurgeScheduleMetadata"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/data-notifications:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    get:
+      parameters:
+      - $ref: "#/components/parameters/data-notification-processing-status"
+      operationId: "getDataNotifications"
+      summary: "Get data notifications"
+      tags:
+      - "Data Notifications"
+      description: "Returns a list of the data notifications with their configuration.\n\
+        \ You can use this response as a request to replace all data notifications."
+      responses:
+        "200":
+          $ref: "#/components/responses/DataNotificationMetadataList"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    put:
+      operationId: "setDataNotifications"
+      summary: "Replace data notifications"
+      tags:
+      - "Data Notifications"
+      description: "Deletes all existing data notifications and creates the data notifications\
+        \ provided in the request.\nReplacing all data notifications deletes all existing\
+        \ notifications with their logs and recreates all notifications from the payload."
+      requestBody:
+        $ref: "#/components/requestBodies/DataNotificationMetadataList"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/data-notifications/{name}:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    - $ref: "#/components/parameters/data-notification-name"
+    get:
+      operationId: "getDataNotification"
+      summary: "Get data notification"
+      tags:
+      - "Data Notifications"
+      description: "Returns the configuration of the data notification whose name\
+        \ is given in the path.\nYou can use this response as a request to set a data\
+        \ notification."
+      responses:
+        "200":
+          $ref: "#/components/responses/DataNotificationMetadata"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    put:
+      operationId: "putDataNotification"
+      summary: "Set data notification"
+      tags:
+      - "Data Notifications"
+      description: "Create a new data notification or update an existing data notification.\
+        \ The data notification name is given in the path.\nNote that this operation\
+        \ updates all configuration properties. A missing property is set to null\
+        \ in the target data notification."
+      requestBody:
+        $ref: "#/components/requestBodies/DataNotificationMetadata"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    patch:
+      operationId: "patchDataNotification"
+      summary: "Update data notification"
+      tags:
+      - "Data Notifications"
+      description: "Updates an existing data notification. The data notification name\
+        \ is given in the path.\nThis operation updates the properties passed in the\
+        \ request. Other properties are left untouched."
+      requestBody:
+        $ref: "#/components/requestBodies/DataNotificationMetadata"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+    delete:
+      operationId: "deleteDataNotification"
+      summary: "Delete data notification"
+      tags:
+      - "Data Notifications"
+      description: "Deletes the data notification whose name is given in the path."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/data-notifications/{name}/status:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    - $ref: "#/components/parameters/data-notification-name"
+    get:
+      operationId: "getDataNotificationStatus"
+      summary: "Get data notification status"
+      tags:
+      - "Data Notifications"
+      description: "Returns the status and runtime information of the data notification\
+        \ whose name is given in the path."
+      responses:
+        "200":
+          $ref: "#/components/responses/DataNotificationStatusMetadata"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "404":
+          $ref: "#/components/responses/ClientError404"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/data-notifications/{name}/kill:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    - $ref: "#/components/parameters/data-notification-name"
+    post:
+      operationId: "killDataNotification"
+      summary: "Kill data notification"
+      tags:
+      - "Data Notifications"
+      description: "Kills the running notification for the data notification whose\
+        \ name is given in the path. This notification is suspended."
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+  /app-builder/data-locations/{dloc-name}/data-notifications/{name}/resume:
+    parameters:
+    - $ref: "#/components/parameters/data-location-name"
+    - $ref: "#/components/parameters/data-notification-name"
+    post:
+      operationId: "resumeDataNotification"
+      summary: "Resume data notification"
+      tags:
+      - "Data Notifications"
+      description: "Resumes the suspended data notification whose name is given in\
+        \ the path."
+      requestBody:
+        $ref: "#/components/requestBodies/DataNotificationResume"
+      responses:
+        "204":
+          $ref: "#/components/responses/Success204"
+        "400":
+          $ref: "#/components/responses/ClientError400"
+        "401":
+          $ref: "#/components/responses/ClientError401"
+        "403":
+          $ref: "#/components/responses/ClientError403"
+        "500":
+          $ref: "#/components/responses/ServerError500"
+components:
+  parameters:
+    model-name:
+      name: "name"
+      in: "path"
+      description: "Name of the model"
+      required: true
+      schema:
+        type: "string"
+    edition-key:
+      name: "key"
+      in: "path"
+      description: "Version number of the model edition, containing the branch number\
+        \ and the model edition number."
+      required: true
+      schema:
+        type: "string"
+        format: "x.y"
+    data-location-name:
+      name: "dloc-name"
+      in: "path"
+      description: "Data location name"
+      required: true
+      schema:
+        type: "string"
+    notification-policy-name:
+      name: "name"
+      in: "path"
+      description: "Notification policy name"
+      required: true
+      schema:
+        type: "string"
+    continuous-load-name:
+      name: "name"
+      in: "path"
+      description: "Continuous load name"
+      required: true
+      schema:
+        type: "string"
+    data-notification-name:
+      name: "name"
+      in: "path"
+      description: "Name of the data notification"
+      required: true
+      schema:
+        type: "string"
+    data-notification-processing-status:
+      name: "$processingStatus"
+      in: "query"
+      description: "Processing status of the data notification"
+      schema:
+        type: "string"
+        enum:
+        - "PROCESSING"
+        - "SUSPENDED"
+        - "SUSPENDING"
+        - "WAITING"
+  schemas:
+    InternalSecret:
+      type: "object"
+      description: "Secret stored in xDM"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "secret-internal"
+        value:
+          type: "string"
+          description: "Value of the secret"
+          example: "val"
+    ExternalSecret:
+      type: "object"
+      description: "Secret stored in an external secrets manager"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "secret-external"
+        secretsManagerAlias:
+          type: "string"
+          description: "Alias of the secret manager"
+          example: "SecretManager"
+        secretName:
+          type: "string"
+          description: "Secret name"
+          example: "mysecret"
+        secretProperty:
+          type: "string"
+          description: "Secret property"
+          example: "prop"
+    NotSecret:
+      type: "string"
+      description: "Plain text value"
+      example: "val"
+    Secret:
+      oneOf:
+      - $ref: "#/components/schemas/InternalSecret"
+      - $ref: "#/components/schemas/ExternalSecret"
+    MaybeSecret:
+      oneOf:
+      - $ref: "#/components/schemas/InternalSecret"
+      - $ref: "#/components/schemas/ExternalSecret"
+      - $ref: "#/components/schemas/NotSecret"
+    ExecutionEngineMetadata:
+      type: "object"
+      description: "Execution engine metadata"
+      properties:
+        status:
+          type: "string"
+          description: "Status of the execution engine.\n\n* `RUNNING`: the engine\
+            \ is up and running.\n`STOPPED`: the engine is stopped."
+          enum:
+          - "RUNNING"
+          - "STOPPED"
+    ModelMetadata:
+      type: "object"
+      description: "Model information"
+      properties:
+        name:
+          type: "string"
+          description: "Name of the model"
+          example: "CustomerB2CDemo"
+        label:
+          type: "string"
+          description: "Label of the model"
+          example: "Customer B2C Demo"
+        description:
+          type: "string"
+          description: "Description of the model"
+          example: "This model is used as a tutorial for a Customer B2C Hub"
+        usedIn:
+          type: "array"
+          description: "List of data locations where this model is deployed."
+          items:
+            type: "string"
+            description: "Data Location"
+            example: "CustomerB2CDemo"
+    BranchMetadata:
+      type: "object"
+      description: "Model branch information"
+      properties:
+        id:
+          type: "integer"
+          description: "Model branch ID"
+          example: "0"
+        name:
+          type: "string"
+          description: "Model branch name"
+          example: "CustomerB2CDemo_Root"
+        label:
+          type: "string"
+          description: "Model branch label"
+          example: "Customer B2C Demo Root branch"
+        description:
+          type: "string"
+          description: "Model branch description"
+          example: "The root branch for Customer B2C Demo"
+    ModelEditionMetadata:
+      type: "object"
+      description: "Model edition information"
+      properties:
+        branch:
+          $ref: "#/components/schemas/BranchMetadata"
+        id:
+          type: "integer"
+          description: "Model edition number in the branch"
+          example: "0"
+        description:
+          type: "string"
+          description: "Model edition description"
+          example: "First version of this model."
+        status:
+          type: "string"
+          description: "Model edition status. An edition may be:\n\n* `OPEN`: An open\
+            \ model edition can be modified, and is considered as being designed.\n\
+            * `CLOSED`: A closed model edition can no longer be modified.\n* `LOCKED`:\
+            \ An open model edition may be temporary moved to that status to prevent\
+            \ changes."
+          enum:
+          - "CLOSED"
+          - "LOCKED"
+          - "OPEN"
+        key:
+          type: "string"
+          format: "x.y"
+          description: "Version number of the model edition, containing the branch\
+            \ number and the model edition number."
+          example: "0.0"
+    BranchCreate:
+      type: "object"
+      description: "Branch information"
+      required:
+      - "name"
+      - "label"
+      - "description"
+      properties:
+        name:
+          type: "string"
+          description: "Model branch name"
+          example: "CustomerB2CDemo_Maintenance"
+        label:
+          type: "string"
+          description: "Model branch label"
+          example: "Customer B2C Demo Maintenance"
+        description:
+          type: "string"
+          description: "Model branch description"
+          example: "Maintenance branch for Customer B2C Demo"
+    ModelCreate:
+      type: "object"
+      description: "Model information"
+      required:
+      - "name"
+      - "label"
+      - "description"
+      - "branch"
+      properties:
+        name:
+          type: "string"
+          description: "Name of the model"
+          example: "CustomerB2CDemo"
+        label:
+          type: "string"
+          description: "Label of the model"
+          example: "Customer B2C Demo"
+        description:
+          type: "string"
+          description: "Description of the model"
+          example: "This model is used as a tutorial for a Customer B2C Hub"
+        branch:
+          $ref: "#/components/schemas/BranchCreate"
+    ModelEditionClose:
+      type: "object"
+      description: "Closed model edition description"
+      required:
+      - "description"
+      properties:
+        description:
+          type: "string"
+          description: "Comment  explaining why the edition was closed."
+          example: "Releasing the milestone 1 to production."
+    DataLocationMetadata:
+      type: "object"
+      description: "Data location information"
+      properties:
+        id:
+          type: "string"
+          description: "Data location's unique identifier"
+          example: "bc3f3628-4f43-11e9-a0a3-0800273ee3f3"
+        name:
+          type: "string"
+          description: "Name of the data location"
+          example: "CustomerB2CDemo"
+        type:
+          type: "string"
+          description: "Type of the data location:\n\n* `DEV`: Development data location.\n\
+            * `PROD`: Product data location."
+          enum:
+          - "DEV"
+          - "PROD"
+        label:
+          type: "string"
+          description: "Label of the data location"
+          example: "Customer B2C Demo"
+        description:
+          type: "string"
+          description: "Description of the data location"
+          example: "Customer B2C data hub"
+        dataSource:
+          type: "string"
+          description: "Data location's datasource name"
+          example: "CustomerB2CDemo"
+        dbType:
+          type: "string"
+          description: "Data location database type"
+          example: "ORACLE"
+        dbName:
+          type: "string"
+          description: "Data location database name"
+          example: " "
+        dbSchema:
+          type: "string"
+          description: "Data location database schema"
+          example: "DLOC_1"
+        modelName:
+          type: "string"
+          description: "Name of the deployed model"
+          example: "CustomerB2CDemo"
+        modelEditionKey:
+          type: "string"
+          format: "x.y"
+          description: "Version number of the model edition, containing the branch\
+            \ number and the model edition number."
+          example: "0.0"
+        deploymentDate:
+          type: "string"
+          format: "YYYY-MM-DDTHH:mm:ss.sssZ"
+          description: "Date of the latest deployment on this data location. "
+          example: "2018-01-25T12:15:00.000Z"
+        status:
+          type: "string"
+          description: "Status of the data location.\n\nA data location available\
+            \ should be in the `DL_READY` status.\n\nA data location requiring a an\
+            \ upgrade is in the `NEEDS_UPGRADE`\_state, and a data location that was\
+            \ moved to maintenance mode by an administrator is in a `MAINTENANCE`status.\n\
+            \nOther statuses are internal."
+          enum:
+          - "CREATING_REPO_OBJECTS"
+          - "DEPLOYING_ME_AND_JOBS"
+          - "DL_READY"
+          - "INSTALLING_STATIC_DDL"
+          - "INSTALL_JOB_FAILED"
+          - "INSTALL_JOB_RUNNING"
+          - "MAINTENANCE"
+          - "UPGRADE_FAILED"
+          - "UPGRADING"
+          - "NEEDS_UPGRADE"
+    DataLocationCreate:
+      type: "object"
+      description: "Data location creation request"
+      required:
+      - "name"
+      - "type"
+      - "label"
+      - "dataSource"
+      - "modelName"
+      - "modelEditionKey"
+      properties:
+        name:
+          type: "string"
+          description: "Name of the data location"
+          example: "CustomerB2CDemo"
+        type:
+          type: "string"
+          description: "Type of the data location:\n\n* `DEV`: Development data location.\n\
+            * `PROD`: Product data location."
+          enum:
+          - "DEV"
+          - "PROD"
+        label:
+          type: "string"
+          description: "Label of the data location"
+          example: "Customer B2C Demo"
+        description:
+          type: "string"
+          description: "Description of the data location"
+          example: "Customer B2C data hub"
+        dataSource:
+          type: "string"
+          description: "Data location's datasource name"
+          example: "CustomerB2CDemo"
+        modelName:
+          type: "string"
+          description: "Name of the deployed model"
+          example: "CustomerB2CDemo"
+        modelEditionKey:
+          type: "string"
+          format: "x.y"
+          description: "Version number of the model edition, containing the branch\
+            \ number and the model edition number."
+          example: "0.0"
+    DataLocationDelete:
+      type: "object"
+      description: "Drop schema request"
+      properties:
+        dropSchema:
+          type: "string"
+          description: "This parameter should contain `DROP` to activate the schema\
+            \ deletion."
+          example: "DROP"
+    DataLocationDeploy:
+      type: "object"
+      description: "Deployed model information"
+      properties:
+        modelName:
+          type: "string"
+          description: "Name of the deployed model"
+          example: "CustomerB2CDemo"
+        modelEditionKey:
+          type: "string"
+          format: "x.y"
+          description: "Version number of the model edition, containing the branch\
+            \ number and the model edition number."
+          example: "0.0"
+    DataLocationChangeStatus:
+      type: "object"
+      description: "Data location status change request"
+      properties:
+        status:
+          type: "string"
+          enum:
+          - "DL_READY"
+          - "MAINTENANCE"
+          description: "New status:\n\n* `DL_READY`: Ready. A data location in this\
+            \ status is fully available.\n* `MAINTENANCE`: Maintenance. A data location\
+            \ in this status cannot be accessed. It does not accept incoming batches\
+            \ but completes its current batches. New loads cannot be initialized and\
+            \ existing loads cannot be submitted."
+    PurgeJobs:
+      type: "object"
+      description: "Job purge filter"
+      properties:
+        jobTypes:
+          type: "array"
+          description: "List of job types to purge."
+          items:
+            type: "string"
+            description: "A job type"
+            enum:
+            - "INSTALL_DDL_JOB"
+            - "INTEGRATION_JOB"
+            - "PURGE_JOB"
+        jobNames:
+          type: "array"
+          description: "List of job name patterns. A job which name matches any of\
+            \ the pattern is considered for the purge. Each pattern is expressed with\
+            \ a SQL 'Like' syntax, using the `_` and `%` wildcards. "
+          items:
+            type: "string"
+            description: "A job name pattern"
+            example: "_ustomer%"
+        jobOwners:
+          type: "array"
+          description: "List of job owner name patterns. A job which owner's name\
+            \ matches any of the pattern is considered for the purge. Each pattern\
+            \ is expressed with a SQL 'Like' syntax, using the `_` and `%` wildcards. "
+          items:
+            type: "string"
+            description: "Job owner name pattern"
+            example: "%doe%"
+        jobStatus:
+          type: "array"
+          description: "List of job status to purge."
+          items:
+            type: "string"
+            description: "A job status"
+            enum:
+            - "DONE"
+            - "ERROR"
+            - "RUNNING"
+            - "STOPPED"
+            - "STARTING"
+            - "SUSPENDED"
+            - "WARNING"
+        period:
+          type: "string"
+          description: "Period to consider for the purge.\n\nIt is expressed with\
+            \ `after | before <number> <time_unit>`, where `<time_unit>` is one of\
+            \ _execution_, _executions_, _second_, _seconds_, _minute_, _minutes_,\
+            \ _day_, _days_, _week_, _weeks_, _month_, _months_\n\nExamples\n\n* `before\
+            \ 7 days`: All logs older than 7 days \n* `after 1 week` : All logs from\
+            \ the past week\n* `after 100 executions`: The last 100 executed jobs\n\
+            * `before 100 executions`: All but the last 100 executed jobs"
+          example: "before 7 days"
+    PurgeJobsResult:
+      type: "object"
+      description: "Number of purged jobs"
+      properties:
+        deletedJobInstances:
+          type: "string"
+          description: "Number of deleted jobs"
+          example: "17"
+    PurgeDeploymentHistory:
+      type: "object"
+      description: "Deployment history purge filter"
+      properties:
+        minDeploymentDate:
+          type: "string"
+          format: "YYYY-MM-DDTHH:mm:ss.sssZ"
+          description: "Minimum date of deployment history to delete."
+          example: "2018-01-25T12:15:00.000Z"
+        maxDeploymentDate:
+          type: "string"
+          format: "YYYY-MM-DDTHH:mm:ss.sssZ"
+          description: "Maximum date of deployment history to delete."
+          example: "2022-11-20T10:10:00.000Z"
+    PurgeDeploymentHistoryResult:
+      type: "object"
+      description: "Number of purged deployment history records"
+      properties:
+        purgedDeploymentHistoryRecords:
+          type: "integer"
+          description: "Number of purged deployment history records"
+          example: "17"
+    NotificationPolicyMetadata:
+      type: "object"
+      description: "Notification policy configuration"
+      properties:
+        name:
+          type: "string"
+          description: "Notification policy name"
+          example: "EmailForErrors"
+        label:
+          type: "string"
+          description: "Notification policy label"
+          example: "Email For Errors"
+        description:
+          type: "string"
+          description: "Notification policy description"
+          example: "Send this email if any job fails for this data location."
+        notificationServer:
+          type: "string"
+          description: "Notification server used to send the notifications"
+          example: "CorporateSMTP"
+        useComplexCondition:
+          type: "boolean"
+          description: "Indicates whether the complex condition expression or the\
+            \ criteria entered in the condition are used to trigger the notification. "
+        complexCondition:
+          type: "string"
+          description: "Groovy condition to trigger the notification."
+          example: "BatchStatus != 'DONE'"
+        condition:
+          type: "object"
+          description: "Criteria to select the completed jobs for which a notification\
+            \ is sent."
+          properties:
+            jobNamePattern:
+              type: "string"
+              description: "Name of the job to take into account for the notification.\
+                \ Use the `_` and `%` wildcards to represent one or any number of\
+                \ characters."
+              example: "%"
+            notifyOnJobFailure:
+              type: "boolean"
+              description: "Indicates whether to send this notification when the job\
+                \ fails."
+            notifyOnJobSuccess:
+              type: "boolean"
+              description: "Indicates whether to send this notification when the job\
+                \ succeeds."
+            totalRowCountThreshold:
+              type: "integer"
+              description: "Maximum number of total records allowed before a notification\
+                \ is sent."
+              example: "10000000"
+            errorCountThreshold:
+              type: "integer"
+              description: "Maximum number of errors allowed before a notification\
+                \ is sent."
+              example: "100"
+            insertCountThreshold:
+              type: "integer"
+              description: "Maximum number of inserted records allowed before a notification\
+                \ is sent."
+              example: "100000"
+            updateCountThreshold:
+              type: "integer"
+              description: "Maximum number of updates allowed before a notification\
+                \ is sent."
+              example: "100000"
+            deleteCountThreshold:
+              type: "integer"
+              description: "Maximum number of deleted records allowed before a notification\
+                \ is sent."
+              example: "1000"
+            mergeCountThreshold:
+              type: "integer"
+              description: "Maximum number of merged records allowed before a notification\
+                \ is sent."
+              example: "100000"
+        payload:
+          type: "string"
+          description: "Payload sent in the notification. This is text content generated\
+            \ using Groovy template."
+          example: "An error occurred for job $JobName"
+        properties:
+          type: "object"
+          description: "Notification configuration properties. These properties depend\
+            \ on the notification server used."
+    ContinuousLoadOutMetadata:
+      type: "object"
+      description: "Continuous load configuration"
+      properties:
+        name:
+          type: "string"
+          description: "Continuous load name"
+          example: "CustomerUpdates"
+        description:
+          type: "string"
+          description: "Continuous load description"
+          example: "Process customer updates every hour."
+        active:
+          type: "boolean"
+          description: "Indicates whether this continuous load is active"
+        programName:
+          type: "string"
+          description: "Program name indicated as submitting this load"
+          example: "CustomerAutomation"
+        onSubmitJob:
+          type: "string"
+          description: "Integration job submitted by the load."
+          example: "INTEGRATE_CUSTOMERS"
+        submitInterval:
+          type: "integer"
+          description: "Interval in second between submissions."
+          example: "3600"
+        submitAs:
+          type: "string"
+          description: "Name of the user submitting the load. "
+          example: "integration_processor"
+        loadId:
+          type: "integer"
+          description: "Load ID of the continuous load.\n\nThis load ID is generated\
+            \ by the platform."
+          example: "869"
+    ContinuousLoadInMetadata:
+      type: "object"
+      description: "Continuous load configuration"
+      properties:
+        name:
+          type: "string"
+          description: "Continuous load name"
+          example: "CustomerUpdates"
+        description:
+          type: "string"
+          description: "Continuous load description"
+          example: "Process customer updates every hour."
+        active:
+          type: "boolean"
+          description: "Indicates whether this continuous load is active"
+        programName:
+          type: "string"
+          description: "Program name indicated as submitting this load"
+          example: "CustomerAutomation"
+        onSubmitJob:
+          type: "string"
+          description: "Integration job submitted by the load."
+          example: "INTEGRATE_CUSTOMERS"
+        submitInterval:
+          type: "integer"
+          description: "Interval in second between submissions."
+          example: "3600"
+        submitAs:
+          type: "string"
+          description: "Name of the user submitting the load. "
+          example: "integration_processor"
+    PurgeScheduleMetadata:
+      type: "object"
+      description: "Purge schedule configuration"
+      properties:
+        cronExpression:
+          type: "string"
+          description: "Cron expression defining the execution schedule for the purge\
+            \ job"
+          example: "0 0 0 ? * 1"
+        active:
+          type: "boolean"
+          description: "Indicate whether the purge schedule is active or not"
+        purgeRepositoryArtifacts:
+          type: "boolean"
+          description: "Indicate whether to prune repository artifact for which all\
+            \ the data is purged."
+    DataNotificationMetadata:
+      type: "object"
+      description: "Data notification configuration"
+      properties:
+        name:
+          type: "string"
+          description: "Name of the data notification"
+          example: "TestNotification"
+        description:
+          type: "string"
+          description: "Description of the data notification"
+          example: "Description of the data notification"
+        lowBatchId:
+          type: "integer"
+          description: "Low batch ID used for the next execution of this notification"
+          example: "1"
+        namedQuery:
+          type: "string"
+          description: "Named query defining the changed records dataset sent in the\
+            \ notification."
+          example: "TestNamedQuery"
+        runAsUser:
+          type: "string"
+          description: "User whose profile information is used for resolving model\
+            \ variables possibly used in the named query. The access privileges of\
+            \ this user are not taken into account to filter the named query data."
+          example: "semadmin"
+        namedQueryViewType:
+          type: "string"
+          description: "Type of data (Golden, Master, etc) sent in the notification"
+          example: "GD"
+        rootRecordsLimit:
+          type: "integer"
+          description: "Maximum number of root records allowed in the dataset. If\
+            \ a trigger causes more than this number of root records to be processed,\
+            \ the notification will automatically fail"
+          example: "1000"
+        namedQueryParams:
+          type: "object"
+          description: "Named query parameters"
+          additionalProperties:
+            x-additionalPropertiesName: "Named query parameter name"
+            type: "object"
+            properties:
+              type:
+                type: "string"
+                description: "Type of the parameter used by the named query"
+                enum:
+                - "LITERAL"
+                - "VARIABLE"
+              value:
+                type: "string"
+                description: "Value of the parameter used by the named query"
+                example: "test"
+        triggerActive:
+          type: "boolean"
+          description: "Status of the notification trigger. Active data notifications\
+            \ run on a given schedule or when a batch completes"
+        triggerType:
+          type: "string"
+          description: "Event triggering this notification"
+          enum:
+          - "ON_BATCH_COMPLETE"
+          - "ON_SCHEDULE"
+        cronExpression:
+          type: "string"
+          format: "cron"
+          description: "Cron schedule"
+          example: ""
+        watchedEntities:
+          type: "array"
+          description: "A notification triggered on Batch Complete only runs when\
+            \ the executed job affects one of the watched entities. Leave this field\
+            \ empty to watch all entities"
+          items:
+            type: "string"
+            description: "List of watched entities"
+            example: "[\"Entity1\",\"Entity2\",\"Entity3\"]"
+        recordsPerMessage:
+          type: "integer"
+          description: "When this property is set, the changed records dataset are\
+            \ split into multiple messages, each containing this number of records.\
+            \ Otherwise, all records are sent in a single message."
+          example: "10"
+        notifyOnEmptyDataset:
+          type: "boolean"
+          description: "Indicates whether a notification must be sent when the changed\
+            \ record dataset is empty"
+        maxRetries:
+          type: "integer"
+          description: "Number of retries in case of an error when sending messages\
+            \ to the target. After all retries, the notification is considered failed\
+            \ and future notifications are automatically suspended."
+          example: "1"
+        retryInterval:
+          type: "integer"
+          description: "Time in seconds between two retries"
+          example: "10"
+        targetType:
+          type: "string"
+          description: "Target of the notification messages"
+          enum:
+          - "JMS"
+          - "KAFKA"
+          - "REST"
+        targetProperties:
+          type: "object"
+          description: "Properties used to configured the target"
+          additionalProperties:
+            $ref: "#/components/schemas/MaybeSecret"
+        jms:
+          type: "object"
+          description: "Properties of the JMS target"
+          properties:
+            destination:
+              type: "string"
+              description: "Name of the JMS destination this Data Notification should\
+                \ send messages to. Use \"queue/\" or \"topic/\" prefix to set the\
+                \ destination type. Without prefix, queue is assumed."
+              example: "queue/xdmtest"
+            username:
+              $ref: "#/components/schemas/MaybeSecret"
+            password:
+              $ref: "#/components/schemas/Secret"
+        kafka:
+          type: "object"
+          description: "Properties of the Kafka target"
+          properties:
+            topic:
+              type: "string"
+              description: "Name of the Kafka topic this notification must send messages\
+                \ to"
+              example: "xdmtest"
+        rest:
+          type: "object"
+          description: "Properties of the Rest target"
+          properties:
+            requestUrl:
+              type: "string"
+              description: "URL of the REST endpoint. It should include HTTP/S"
+              example: "http://localhost:8080"
+            httpTimeout:
+              type: "integer"
+              description: "Timeout for the HTTP request in seconds. After this time,\
+                \ the REST call is considered failed."
+              example: "60"
+    DataNotificationStatusMetadata:
+      type: "object"
+      description: "Status summary of the data notification"
+      properties:
+        processingStatus:
+          type: "string"
+          description: "Processing status of this data notification"
+          enum:
+          - "PROCESSING"
+          - "SUSPENDED"
+          - "SUSPENDING"
+          - "WAITING"
+        triggerActive:
+          type: "boolean"
+          description: "Status of the notification trigger. Active data notifications\
+            \ run on a given schedule or when a batch completes"
+        lowBatchId:
+          type: "integer"
+          description: "Low batch ID used for the next execution of this notification"
+          example: "#1"
+        latestNotificationLog:
+          type: "object"
+          description: "Log of the latest notification instance"
+          properties:
+            notificationLogId:
+              type: "integer"
+              description: "Identifier of the notification log"
+              example: "1"
+            executionStatus:
+              type: "string"
+              description: "Execution status of this notification"
+              enum:
+              - "FAILED"
+              - "KILLED"
+              - "RUNNING"
+              - "SUCCEEDED"
+              - "WAITING_FOR_RETRY"
+            updated:
+              type: "string"
+              description: "Last update of this notification"
+              format: "YYYY-MM-DDTHH:mm:ss.sssZ"
+            message:
+              type: "string"
+              description: "Error or warning message"
+              example: "TestNotification failed while sending message"
+            lowBatchId:
+              type: "integer"
+              description: "Low batch ID processed by this notification"
+              example: "1"
+            highBatchId:
+              type: "integer"
+              description: "High batch ID processed by this notification"
+              example: "2"
+            attempts:
+              type: "integer"
+              description: "Number of attempts to run this notification"
+              example: "1"
+            recordCount:
+              type: "integer"
+              description: "Number of records sent by this notification"
+              example: "8"
+            messageCount:
+              type: "integer"
+              description: "Number of messages sent by this notification"
+              example: "3"
+            queryDuration:
+              type: "integer"
+              description: "Duration of the named query execution"
+              example: "1"
+            sendingDuration:
+              type: "integer"
+              description: "Duration of the message sending process"
+              example: "10"
+    DataNotificationResume:
+      type: "object"
+      description: "Configuration of the resume action"
+      properties:
+        pendingNotificationsBehavior:
+          type: "string"
+          description: "Defines how pending notifications must be handled"
+          enum:
+          - "SKIP"
+          - "PROCESS_IN_ONE_BATCH"
+  requestBodies:
+    ModelCreate:
+      description: "Model information"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ModelCreate"
+    BranchCreate:
+      description: "New branch information"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BranchCreate"
+    ModelEditionClose:
+      description: "Closed model edition description"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ModelEditionClose"
+    ModelEdition:
+      description: "Model edition information"
+      required: true
+      content:
+        application/octet-stream:
+          schema:
+            type: "string"
+            format: "binary"
+    ModelEditionTranslations:
+      description: "Translation bundles"
+      required: true
+      content:
+        application/octet-stream:
+          schema:
+            type: "string"
+            format: "zip"
+    DataLocationCreate:
+      description: "Data location creation request"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataLocationCreate"
+    DataLocationDelete:
+      description: "Data location deletion request"
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataLocationDelete"
+    DataLocationDeploy:
+      description: "Data location deployment request"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataLocationDeploy"
+    DataLocationChangeStatus:
+      description: "Data location status change request"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataLocationChangeStatus"
+    PurgeJobs:
+      description: "Job purge filter"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PurgeJobs"
+    PurgeDeploymentHistory:
+      description: "Deployment history purge filter"
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PurgeDeploymentHistory"
+    NotificationPolicyMetadataList:
+      description: "List of notification policies"
+      required: true
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "List of notification policies"
+            items:
+              $ref: "#/components/schemas/NotificationPolicyMetadata"
+    NotificationPolicyMetadata:
+      description: "Notification policy configuration"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NotificationPolicyMetadata"
+    ContinuousLoadInMetadataList:
+      description: "Continuous loads list"
+      required: true
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "Continuous load configuration"
+            items:
+              $ref: "#/components/schemas/ContinuousLoadInMetadata"
+    ContinuousLoadInMetadata:
+      description: "Continuous load configuration"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContinuousLoadInMetadata"
+    PurgeScheduleMetadata:
+      description: "Purge schedule configuration"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PurgeScheduleMetadata"
+    DataNotificationMetadataList:
+      description: "Data notifications list"
+      required: true
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "Data notification configuration"
+            items:
+              $ref: "#/components/schemas/DataNotificationMetadata"
+    DataNotificationMetadata:
+      description: "Data notification configuration"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataNotificationMetadata"
+    DataNotificationResume:
+      description: "Configuration of the resume action"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataNotificationResume"
+  responses:
+    ExecutionEngineMetadata:
+      description: "Execution engine metadata"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ExecutionEngineMetadata"
+    ModelMetadataList:
+      description: "List of models"
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "List of models"
+            items:
+              $ref: "#/components/schemas/ModelMetadata"
+    ModelMetadata:
+      description: "Model information"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ModelMetadata"
+    ModelEditionMetadataList:
+      description: "Model edition list"
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "Model edition list"
+            items:
+              $ref: "#/components/schemas/ModelEditionMetadata"
+    ModelEditionMetadata:
+      description: "Model edition information"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ModelEditionMetadata"
+    ModelEdition:
+      description: "Model edition export"
+      content:
+        application/octet-stream:
+          schema:
+            type: "string"
+            format: "binary"
+    ModelEditionTranslations:
+      description: "Translation bundles"
+      content:
+        application/octet-stream:
+          schema:
+            type: "string"
+            format: "zip"
+    DataLocationMetadataList:
+      description: "Data locations list"
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "Data location information"
+            items:
+              $ref: "#/components/schemas/DataLocationMetadata"
+    DataLocationMetadata:
+      description: "Data location information"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataLocationMetadata"
+    PurgeJobsResult:
+      description: "Number of purged jobs"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PurgeJobsResult"
+    PurgeDeploymentHistoryResult:
+      description: "Number of purged deployment history records"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PurgeDeploymentHistoryResult"
+    NotificationPolicyMetadataList:
+      description: "List of notification policies"
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "List of notification policies"
+            items:
+              $ref: "#/components/schemas/NotificationPolicyMetadata"
+    NotificationPolicyMetadata:
+      description: "Notification policy configuration"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NotificationPolicyMetadata"
+    ContinuousLoadOutMetadataList:
+      description: "Continuous loads list"
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "Continuous load configuration"
+            items:
+              $ref: "#/components/schemas/ContinuousLoadOutMetadata"
+    ContinuousLoadOutMetadata:
+      description: "Continuous load configuration"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContinuousLoadOutMetadata"
+    PurgeScheduleMetadata:
+      description: "Purge schedule configuration"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PurgeScheduleMetadata"
+    DataNotificationMetadataList:
+      description: "Data notifications list"
+      content:
+        application/json:
+          schema:
+            type: "array"
+            description: "Data notification configuration"
+            items:
+              $ref: "#/components/schemas/DataNotificationMetadata"
+    DataNotificationMetadata:
+      description: "Data notification configuration"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataNotificationMetadata"
+    DataNotificationStatusMetadata:
+      description: "Status of the data notification"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DataNotificationStatusMetadata"
+    Success201:
+      description: "Created"
+    Success204:
+      description: "No Content"
+    Redirection303:
+      description: "See Other"
+    ClientError400:
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              error:
+                type: "object"
+                properties:
+                  errorMessage:
+                    type: "string"
+                    description: "a description of the error"
+                    example: "Parameter 'name' is required"
+                  errorId:
+                    type: "string"
+                    description: "a unique identifier of the error (used to correlate\
+                      \ the error with the logs on the server)"
+                    example: "9294d7bd-5c01-47fb-b91c-45cc6e8774a7"
+                  statusCode:
+                    type: "integer"
+                    description: "400: Bad Request"
+                    example: 400
+    ClientError401:
+      description: "Unauthorized"
+    ClientError403:
+      description: "Forbidden"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              error:
+                type: "object"
+                properties:
+                  errorMessage:
+                    type: "string"
+                    description: "a description of the error"
+                    example: "User must have role SEMARCHY_ADMIN"
+                  errorId:
+                    type: "string"
+                    description: "a unique identifier of the error (used to correlate\
+                      \ the error with the logs on the server)"
+                    example: "9294d7bd-5c01-47fb-b91c-45cc6e8774a7"
+                  statusCode:
+                    type: "integer"
+                    description: "403: Forbidden"
+                    example: 403
+    ClientError404:
+      description: "Not Found"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              error:
+                type: "object"
+                properties:
+                  errorMessage:
+                    type: "string"
+                    description: "a description of the error"
+                    example: "Missing resource"
+                  errorId:
+                    type: "string"
+                    description: "a unique identifier of the error (used to correlate\
+                      \ the error with the logs on the server)"
+                    example: "9294d7bd-5c01-47fb-b91c-45cc6e8774a7"
+                  statusCode:
+                    type: "integer"
+                    description: "404: Not Found"
+                    example: 404
+    ClientError409:
+      description: "Conflict"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              error:
+                type: "object"
+                properties:
+                  errorMessage:
+                    type: "string"
+                    description: "a description of the error"
+                    example: "Resource is expected to be READY but is PENDING"
+                  errorId:
+                    type: "string"
+                    description: "a unique identifier of the error (used to correlate\
+                      \ the error with the logs on the server)"
+                    example: "9294d7bd-5c01-47fb-b91c-45cc6e8774a7"
+                  statusCode:
+                    type: "integer"
+                    description: "409: Conflict"
+                    example: 409
+    ServerError500:
+      description: "Server Error"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              error:
+                type: "object"
+                properties:
+                  errorMessage:
+                    type: "string"
+                    description: "a description of the error"
+                    example: "Internal Error"
+                  errorId:
+                    type: "string"
+                    description: "a unique identifier of the error (used to correlate\
+                      \ the error with the logs on the server)"
+                    example: "9294d7bd-5c01-47fb-b91c-45cc6e8774a7"
+                  statusCode:
+                    type: "integer"
+                    description: "500: Server Error"
+                    example: 500
+  securitySchemes:
+    basicAuth:
+      type: "http"
+      scheme: "basic"
+    apiKeyAuth:
+      type: "apiKey"
+      in: "header"
+      name: "API-Key"
